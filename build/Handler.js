@@ -8,7 +8,7 @@
   log = require('./log');
 
   Handler = (function() {
-    var default_error, isJsonParsingError, respond;
+    var default_error, respond;
 
     function Handler() {}
 
@@ -22,10 +22,6 @@
         error: 'Server Error'
       }, 500
     ];
-
-    isJsonParsingError = function(error) {
-      return Type(error, SyntaxError) && (error.message === 'Unexpected end of input');
-    };
 
     Handler.run = function(action_name) {
       var action;
@@ -75,7 +71,7 @@
         stack: error.stack
       });
       body = default_error[0], status = default_error[1];
-      if (isJsonParsingError(error)) {
+      if (Type(error, SyntaxError)) {
         body.error = 'Invalid JSON';
       }
       return respond(response, body, status);

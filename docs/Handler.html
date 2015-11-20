@@ -94,9 +94,6 @@ log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
     response.status(status).send(JSON.stringify(body))
 
   default_error = [{ error : <span class="hljs-string">'Server Error'</span> }, <span class="hljs-number">500</span>]
-<span class="hljs-function">
-  <span class="hljs-title">isJsonParsingError</span> = <span class="hljs-params">(error)</span>-&gt;</span>
-    Type(error, SyntaxError) <span class="hljs-keyword">and</span> (error.message <span class="hljs-keyword">is</span> <span class="hljs-string">'Unexpected end of input'</span>)
 
   <span class="hljs-property">@run</span>: <span class="hljs-function"><span class="hljs-params">(action_name)</span>-&gt;</span>
 
@@ -135,7 +132,7 @@ log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
 
     [body, status] = default_error
 
-    <span class="hljs-keyword">if</span> isJsonParsingError(error)
+    <span class="hljs-keyword">if</span> Type(error, SyntaxError)
       body.error = <span class="hljs-string">'Invalid JSON'</span>
 
     respond(response, body, status)

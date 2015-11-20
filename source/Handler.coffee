@@ -10,9 +10,6 @@ class Handler
 
   default_error = [{ error : 'Server Error' }, 500]
 
-  isJsonParsingError = (error)->
-    Type(error, SyntaxError) and (error.message is 'Unexpected end of input')
-
   @run: (action_name)->
 
     action = Actions[action_name]
@@ -50,7 +47,7 @@ class Handler
 
     [body, status] = default_error
 
-    if isJsonParsingError(error)
+    if Type(error, SyntaxError)
       body.error = 'Invalid JSON'
 
     respond(response, body, status)
