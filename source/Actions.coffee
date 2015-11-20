@@ -29,8 +29,8 @@ module.exports = {
       send_at = new Date(params.send_at)
       now = new Date()
 
-      # unless send_at > now
-      #   return context.fail('send_at is in the past')
+      unless send_at > now
+        return context.fail('send_at is in the past')
 
       context.next({
         send_at : send_at
