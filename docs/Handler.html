@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Handler.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="Actions.html">
+                  Actions.coffee
+                </a>
+              
+                
+                <a class="source" href="Handler.html">
+                  Handler.coffee
+                </a>
+              
+                
+                <a class="source" href="log.html">
+                  log.coffee
+                </a>
+              
+                
+                <a class="source" href="Address.html">
+                  Address.coffee
+                </a>
+              
+                
+                <a class="source" href="Message.html">
+                  Message.coffee
+                </a>
+              
+                
+                <a class="source" href="index.html">
+                  index.coffee
+                </a>
+              
+                
+                <a class="source" href="routes.html">
+                  routes.coffee
+                </a>
+              
+                
+                <a class="source" href="server.html">
+                  server.coffee
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Handler.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Type = <span class="hljs-built_in">require</span>(<span class="hljs-string">'type-of-is'</span>)
+
+Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Actions'</span>)
+log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./log'</span>)
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Handler</span></span>
+<span class="hljs-function">  <span class="hljs-title">respond</span> = <span class="hljs-params">(response, body, status)</span>-&gt;</span>
+    response.setHeader(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'application/json'</span>)
+    response.status(status).send(JSON.stringify(body))
+
+  default_error = [{ error : <span class="hljs-string">'Server Error'</span> }, <span class="hljs-number">500</span>]
+<span class="hljs-function">
+  <span class="hljs-title">isJsonParsingError</span> = <span class="hljs-params">(error)</span>-&gt;</span>
+    Type(error, SyntaxError) <span class="hljs-keyword">and</span> (error.message <span class="hljs-keyword">is</span> <span class="hljs-string">'Unexpected end of input'</span>)
+
+  <span class="hljs-property">@run</span>: <span class="hljs-function"><span class="hljs-params">(action_name)</span>-&gt;</span>
+
+    action = Actions[action_name]
+    <span class="hljs-keyword">unless</span> Type(action, Function)
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">"No such action: <span class="hljs-subst">#{action_name}</span>"</span>)
+
+    (request, response)=&gt;
+      log.info(request : request.originalUrl)
+<span class="hljs-function">
+      <span class="hljs-title">send</span> = <span class="hljs-params">(context)</span>=&gt;</span>
+        [body, status] = <span class="hljs-keyword">switch</span>
+          <span class="hljs-keyword">when</span> context.succeeded
+            [context.data.result, <span class="hljs-number">200</span>]
+          <span class="hljs-keyword">when</span> context.errored
+            log.error(context.error.stack)
+            default_error
+          <span class="hljs-keyword">when</span> context.failed
+            [{ error : context.data.error.message }, <span class="hljs-number">200</span>]
+
+        log.info({
+          state  : context.state
+          status : status
+          body   : body
+        })
+
+        respond(response, body, status)
+
+      action(request.body, send)
+
+  <span class="hljs-property">@error</span> : <span class="hljs-function"><span class="hljs-params">(error, request, response, next)</span>-&gt;</span>
+    log.error({
+      error : error.message
+      stack : error.stack
+    })
+
+    [body, status] = default_error
+
+    <span class="hljs-keyword">if</span> isJsonParsingError(error)
+      body.error = <span class="hljs-string">'Invalid JSON'</span>
+
+    respond(response, body, status)
+
+
+<span class="hljs-built_in">module</span>.exports = Handler</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

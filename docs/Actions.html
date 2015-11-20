@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Actions.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="Actions.html">
+                  Actions.coffee
+                </a>
+              
+                
+                <a class="source" href="Handler.html">
+                  Handler.coffee
+                </a>
+              
+                
+                <a class="source" href="log.html">
+                  log.coffee
+                </a>
+              
+                
+                <a class="source" href="Address.html">
+                  Address.coffee
+                </a>
+              
+                
+                <a class="source" href="Message.html">
+                  Message.coffee
+                </a>
+              
+                
+                <a class="source" href="index.html">
+                  index.coffee
+                </a>
+              
+                
+                <a class="source" href="routes.html">
+                  routes.coffee
+                </a>
+              
+                
+                <a class="source" href="server.html">
+                  server.coffee
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>Actions.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Context    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cntxt'</span>)
+Type       = <span class="hljs-built_in">require</span>(<span class="hljs-string">'type-of-is'</span>)
+PhoneRegex = <span class="hljs-built_in">require</span>(<span class="hljs-string">'phone-regex'</span>)
+EmailRegex = <span class="hljs-built_in">require</span>(<span class="hljs-string">'email-regex'</span>)
+
+Message = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./models'</span>).Message
+log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./log'</span>)
+
+<span class="hljs-built_in">module</span>.exports = {
+  <span class="hljs-attribute">create</span>: <span class="hljs-function"><span class="hljs-params">(params, send)</span>-&gt;</span>
+<span class="hljs-function">    <span class="hljs-title">requireParams</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'requireParams'</span>)
+
+      <span class="hljs-keyword">for</span> param <span class="hljs-keyword">in</span> [<span class="hljs-string">'name'</span>, <span class="hljs-string">'send_at'</span>]
+        <span class="hljs-keyword">unless</span> param <span class="hljs-keyword">of</span> params
+          <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">"Missing param: <span class="hljs-subst">#{param}</span>"</span>)
+
+      context.next(params)
+<span class="hljs-function">
+    <span class="hljs-title">processSendAt</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'processSendAt'</span>)
+
+      timestamp = Date.parse(params.send_at)
+      <span class="hljs-keyword">if</span> isNaN(timestamp)
+        <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">'send_at is not valid'</span>)
+
+      send_at = <span class="hljs-keyword">new</span> Date(params.send_at)
+      now = <span class="hljs-keyword">new</span> Date()
+
+      <span class="hljs-keyword">unless</span> send_at &gt; now
+        <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">'send_at is in the past'</span>)
+
+      context.next({
+        send_at : send_at
+      })
+<span class="hljs-function">
+    <span class="hljs-title">processAddress</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'processAddress'</span>)
+
+      <span class="hljs-keyword">unless</span> <span class="hljs-string">'address'</span> <span class="hljs-keyword">of</span> context.data
+        <span class="hljs-keyword">return</span> context.next()
+
+      address = context.data.address
+
+      [type, value] = <span class="hljs-keyword">if</span> PhoneRegex(exact : <span class="hljs-literal">true</span>).test(address)
+        [<span class="hljs-string">'phone'</span>, address]
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> EmailRegex(exact : <span class="hljs-literal">true</span>).test(address)
+        [<span class="hljs-string">'email'</span>, address]
+      <span class="hljs-keyword">else</span>
+        [<span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>]
+
+      <span class="hljs-keyword">unless</span> type
+        <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">'address is not valid phone or email'</span>)
+
+      context.next({
+        address : {
+          type  : type
+          value : value
+        }
+      })
+<span class="hljs-function">
+    <span class="hljs-title">create</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'create'</span>, context.data)
+      Message.insert(
+        data     : context.data,
+        callback : <span class="hljs-function"><span class="hljs-params">(error, messages)</span>-&gt;</span>
+          <span class="hljs-keyword">if</span> error
+            context.error(error)
+          <span class="hljs-keyword">else</span>
+            context.next({
+              result : {
+                message : messages[<span class="hljs-number">0</span>].data()
+              }
+            })
+      )
+
+    Context.run([
+      requireParams,
+      processSendAt,
+      processAddress,
+      create
+    ]).done(send)
+
+  <span class="hljs-attribute">list</span>: <span class="hljs-function"><span class="hljs-params">(params, send)</span>-&gt;</span>
+<span class="hljs-function">    <span class="hljs-title">find</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'find'</span>)
+
+      Message.findAll(
+        callback : context.wrap(<span class="hljs-string">'messages'</span>)
+      )
+<span class="hljs-function">
+    <span class="hljs-title">format</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+      log.info(<span class="hljs-string">'format'</span>)
+
+      messages = context.data.messages.map(<span class="hljs-function"><span class="hljs-params">(message)</span>-&gt;</span>
+        message.data()
+      )
+
+      context.next({
+        <span class="hljs-attribute">result</span>: {
+          messages : messages
+        }
+      })
+
+    Context.run([
+      find,
+      format
+    ]).done(send)
+}</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
