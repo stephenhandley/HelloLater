@@ -8,12 +8,14 @@ log     = require('./log')
 
 module.exports = {
   create: (params, send)->
-    requireParams = (context)->
+    checkParams = (context)->
       log.info('requireParams')
 
       for param in ['name', 'send_at']
         unless param of params
           return context.fail("Missing param: #{param}")
+
+      params.sent = false
 
       context.next(params)
 
@@ -27,8 +29,8 @@ module.exports = {
       send_at = new Date(params.send_at)
       now = new Date()
 
-      unless send_at > now
-        return context.fail('send_at is in the past')
+      # unless send_at > now
+      #   return context.fail('send_at is in the past')
 
       context.next({
         send_at : send_at
@@ -75,7 +77,7 @@ module.exports = {
       )
 
     Context.run([
-      requireParams,
+      checkParams,
       processSendAt,
       processAddress,
       create

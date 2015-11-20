@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>log.coffee</title>
+  <title>Email.coffee</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -93,7 +93,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>log.coffee</h1>
+                  <h1>Email.coffee</h1>
               </div>
           </li>
         
@@ -108,8 +108,30 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>Bunyan = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bunyan'</span>)
-<span class="hljs-built_in">module</span>.exports = Bunyan.createLogger(name : <span class="hljs-string">'HelloLater'</span>)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>Sendgrid = <span class="hljs-built_in">require</span>(<span class="hljs-string">'sendgrid'</span>)
+
+Transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Transport'</span>)
+log       = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../log'</span>)
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Email</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Transport</span></span>
+  constructor : <span class="hljs-function"><span class="hljs-params">()</span>-&gt;</span>
+    env = process.env
+    <span class="hljs-property">@client</span> = Sendgrid(process.env.SENDGRID_API_KEY)
+
+  send : <span class="hljs-function"><span class="hljs-params">(args)</span>-&gt;</span>
+    {message, callback} = args
+
+    payload = {
+      to      : message.address.email
+      from    : process.env.SENDGRID_EMAIL
+      subject : message.body
+      text    : message.body
+    }
+
+    log.info(payload, <span class="hljs-string">'sending email'</span>, payload)
+    <span class="hljs-property">@client</span>.send(payload, callback)
+
+<span class="hljs-built_in">module</span>.exports = Email</pre></div></div>
             
         </li>
         

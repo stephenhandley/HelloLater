@@ -14,6 +14,7 @@
     "url": "http://person.sh"
   },
   "dependencies": {
+    "async": "^1.5.0",
     "body-parser": "1.14.1",
     "bunyan": "1.5.1",
     "cntxt": "2.1.0",
@@ -23,6 +24,8 @@
     "foreman": "1.4.1",
     "phone-regex": "2.0.0",
     "requireindex": "1.1.0",
+    "sendgrid": "^1.9.2",
+    "twilio": "^2.5.2",
     "type-of-is": "3.4.0"
   },
   "devDependencies": {

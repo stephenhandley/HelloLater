@@ -23,6 +23,20 @@
 
   })(Mongo.EmbeddedModel);
 
+  Object.defineProperty(Address.prototype, 'phone', {
+    get: function() {
+      var numbers;
+      numbers = this.value.replace(/[^\d]+/g, '');
+      return "+1" + numbers;
+    }
+  });
+
+  Object.defineProperty(Address.prototype, 'email', {
+    get: function() {
+      return this.value;
+    }
+  });
+
   module.exports = Address;
 
 }).call(this);

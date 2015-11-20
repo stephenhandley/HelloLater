@@ -7,11 +7,11 @@
 
   Type = require('type-of-is');
 
-  routes = require('./routes');
+  routes = require('../routes');
 
-  Handler = require('./Handler');
+  Handler = require('../Handler');
 
-  log = require('./log');
+  log = require('../log');
 
   app = Express();
 

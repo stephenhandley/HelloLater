@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>log.coffee</title>
+  <title>send.coffee</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -93,7 +93,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>log.coffee</h1>
+                  <h1>send.coffee</h1>
               </div>
           </li>
         
@@ -108,8 +108,48 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>Bunyan = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bunyan'</span>)
-<span class="hljs-built_in">module</span>.exports = Bunyan.createLogger(name : <span class="hljs-string">'HelloLater'</span>)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>Async = <span class="hljs-built_in">require</span>(<span class="hljs-string">'async'</span>)
+Context = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cntxt'</span>)
+
+log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../log'</span>)
+Message = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../models'</span>).Message
+<span class="hljs-function">
+<span class="hljs-title">find</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+  log.info(<span class="hljs-string">'findUnsent'</span>)
+  Message.findUnsent(context.wrap(<span class="hljs-string">'messages'</span>))
+<span class="hljs-function">
+<span class="hljs-title">getIds</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+  log.info(<span class="hljs-string">'getIds'</span>)
+  messages = context.data.messages
+  ids = messages.map(<span class="hljs-function"><span class="hljs-params">(message)</span>-&gt;</span>
+    message.id
+  )
+
+  context.next({
+    ids : ids
+  })
+<span class="hljs-function">
+<span class="hljs-title">send</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+  log.info({ids : context.data.ids }, <span class="hljs-string">'sending'</span>)
+<span class="hljs-function">
+  <span class="hljs-title">item</span> = <span class="hljs-params">(message, next)</span>-&gt;</span>
+    message.send(next)
+
+  Async.eachSeries(context.data.messages, item, context.wrap(<span class="hljs-string">'sends'</span>))
+
+log.info(<span class="hljs-string">'Starting send'</span>)
+
+Context.run([
+  find,
+  getIds,
+  send
+]).done(<span class="hljs-function"><span class="hljs-params">(context)</span>-&gt;</span>
+  <span class="hljs-keyword">if</span> context.errored
+    log.error(context.error)
+  <span class="hljs-keyword">else</span>
+    log.info(<span class="hljs-string">'Done sending'</span>)
+    log.info(sends : context.data.sends)
+)</pre></div></div>
             
         </li>
         

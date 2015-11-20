@@ -55,8 +55,33 @@
                 </a>
               
                 
+                <a class="source" href="send.html">
+                  send.coffee
+                </a>
+              
+                
                 <a class="source" href="server.html">
                   server.coffee
+                </a>
+              
+                
+                <a class="source" href="Email.html">
+                  Email.coffee
+                </a>
+              
+                
+                <a class="source" href="Phone.html">
+                  Phone.coffee
+                </a>
+              
+                
+                <a class="source" href="Transport.html">
+                  Transport.coffee
+                </a>
+              
+                
+                <a class="source" href="index.html">
+                  index.coffee
                 </a>
               
             </div>
@@ -91,6 +116,17 @@ Schema = Mongo.Schema
     type  : Schema.String
     value : Schema.String
   })
+
+Object.defineProperty(<span class="hljs-attribute">Address</span>::, <span class="hljs-string">'phone'</span>, {
+  get : <span class="hljs-function"><span class="hljs-params">()</span>-&gt;</span>
+    numbers = <span class="hljs-property">@value</span>.replace(<span class="hljs-regexp">/[^\d]+/g</span>, <span class="hljs-string">''</span>)
+    <span class="hljs-string">"+1<span class="hljs-subst">#{numbers}</span>"</span>
+})
+
+Object.defineProperty(<span class="hljs-attribute">Address</span>::, <span class="hljs-string">'email'</span>, {
+  get : <span class="hljs-function"><span class="hljs-params">()</span>-&gt;</span>
+    <span class="hljs-property">@value</span>
+})
 
 <span class="hljs-built_in">module</span>.exports = Address</pre></div></div>
             

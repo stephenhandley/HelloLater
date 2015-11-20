@@ -2,9 +2,9 @@ Express    = require('express')
 BodyParser = require('body-parser')
 Type       = require('type-of-is')
 
-routes  = require('./routes')
-Handler = require('./Handler')
-log     = require('./log')
+routes  = require('../routes')
+Handler = require('../Handler')
+log     = require('../log')
 
 app = Express()
 app.use(BodyParser.json())

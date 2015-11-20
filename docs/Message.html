@@ -55,8 +55,33 @@
                 </a>
               
                 
+                <a class="source" href="send.html">
+                  send.coffee
+                </a>
+              
+                
                 <a class="source" href="server.html">
                   server.coffee
+                </a>
+              
+                
+                <a class="source" href="Email.html">
+                  Email.coffee
+                </a>
+              
+                
+                <a class="source" href="Phone.html">
+                  Phone.coffee
+                </a>
+              
+                
+                <a class="source" href="Transport.html">
+                  Transport.coffee
+                </a>
+              
+                
+                <a class="source" href="index.html">
+                  index.coffee
                 </a>
               
             </div>
@@ -86,7 +111,9 @@
             <div class="content"><div class='highlight'><pre>Mongo  = <span class="hljs-built_in">require</span>(<span class="hljs-string">'diso.mongo'</span>)
 Schema = Mongo.Schema
 
-Address = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Address'</span>)
+Address    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./Address'</span>)
+transports = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../transports'</span>)
+log        = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../log'</span>)
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Message</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Mongo</span>.<span class="hljs-title">Model</span></span>
   <span class="hljs-property">@db_url</span> : process.env.MONGO_URL
@@ -95,7 +122,56 @@ Address = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
     name    : Schema.String
     send_at : Schema.Date
     address : Address
+    sent    : Schema.Boolean
   })
+
+  <span class="hljs-property">@findUnsent</span> : <span class="hljs-function"><span class="hljs-params">(callback)</span>-&gt;</span>
+    now = <span class="hljs-keyword">new</span> Date()
+
+    query = {
+      sent    : <span class="hljs-literal">false</span>
+      send_at : {
+        $lte : now
+      }
+    }
+
+    <span class="hljs-property">@findAll</span>(
+      query    : query
+      callback : callback
+    )
+
+  send : <span class="hljs-function"><span class="hljs-params">(callback)</span>-&gt;</span>
+    <span class="hljs-keyword">unless</span> <span class="hljs-property">@address</span>
+      callback(<span class="hljs-literal">null</span>, { message : <span class="hljs-string">'no address, not sending'</span> })
+
+    type = <span class="hljs-property">@address</span>.type
+    type = type[<span class="hljs-number">0</span>].toUpperCase() + type.slice(<span class="hljs-number">1</span>)
+    Transport = transports[type]
+
+    log.info({ message : @, transport : Transport.name }, <span class="hljs-string">'sending message'</span>)
+    Transport.send(
+      message  : @,
+      callback : <span class="hljs-function"><span class="hljs-params">(error, receipt)</span>=&gt;</span>
+        <span class="hljs-property">@update</span>(
+          update : {
+            $set : {
+              sent : <span class="hljs-literal">true</span>
+            }
+          },
+          callback : <span class="hljs-function"><span class="hljs-params">(error)</span>-&gt;</span>
+            <span class="hljs-keyword">if</span> (error)
+              log.error(error)
+            <span class="hljs-keyword">else</span>
+              log.info(<span class="hljs-string">'sent message'</span>)
+
+            callback(error, receipt)
+        )
+    )
+
+Object.defineProperty(<span class="hljs-attribute">Message</span>::, <span class="hljs-string">'body'</span>, {
+  get : <span class="hljs-function"><span class="hljs-params">()</span>-&gt;</span>
+    <span class="hljs-string">"Hello <span class="hljs-subst">#{<span class="hljs-property">@name</span>}</span>"</span>
+})
 
 <span class="hljs-built_in">module</span>.exports = Message</pre></div></div>
             

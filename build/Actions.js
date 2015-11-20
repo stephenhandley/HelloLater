@@ -15,8 +15,8 @@
 
   module.exports = {
     create: function(params, send) {
-      var create, processAddress, processSendAt, requireParams;
-      requireParams = function(context) {
+      var checkParams, create, processAddress, processSendAt;
+      checkParams = function(context) {
         var i, len, param, ref;
         log.info('requireParams');
         ref = ['name', 'send_at'];
@@ -26,6 +26,7 @@
             return context.fail("Missing param: " + param);
           }
         }
+        params.sent = false;
         return context.next(params);
       };
       processSendAt = function(context) {
@@ -37,9 +38,6 @@
         }
         send_at = new Date(params.send_at);
         now = new Date();
-        if (!(send_at > now)) {
-          return context.fail('send_at is in the past');
-        }
         return context.next({
           send_at: send_at
         });
@@ -83,7 +81,7 @@
           }
         });
       };
-      return Context.run([requireParams, processSendAt, processAddress, create]).done(send);
+      return Context.run([checkParams, processSendAt, processAddress, create]).done(send);
     },
     list: function(params, send) {
       var find, format;

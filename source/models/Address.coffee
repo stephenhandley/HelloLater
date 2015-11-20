@@ -7,4 +7,15 @@ class Address extends Mongo.EmbeddedModel
     value : Schema.String
   })
 
+Object.defineProperty(Address::, 'phone', {
+  get : ()->
+    numbers = @value.replace(/[^\d]+/g, '')
+    "+1#{numbers}"
+})
+
+Object.defineProperty(Address::, 'email', {
+  get : ()->
+    @value
+})
+
 module.exports = Address

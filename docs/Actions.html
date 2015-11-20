@@ -55,8 +55,33 @@
                 </a>
               
                 
+                <a class="source" href="send.html">
+                  send.coffee
+                </a>
+              
+                
                 <a class="source" href="server.html">
                   server.coffee
+                </a>
+              
+                
+                <a class="source" href="Email.html">
+                  Email.coffee
+                </a>
+              
+                
+                <a class="source" href="Phone.html">
+                  Phone.coffee
+                </a>
+              
+                
+                <a class="source" href="Transport.html">
+                  Transport.coffee
+                </a>
+              
+                
+                <a class="source" href="index.html">
+                  index.coffee
                 </a>
               
             </div>
@@ -93,12 +118,14 @@ log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
 
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-attribute">create</span>: <span class="hljs-function"><span class="hljs-params">(params, send)</span>-&gt;</span>
-<span class="hljs-function">    <span class="hljs-title">requireParams</span> = <span class="hljs-params">(context)</span>-&gt;</span>
+<span class="hljs-function">    <span class="hljs-title">checkParams</span> = <span class="hljs-params">(context)</span>-&gt;</span>
       log.info(<span class="hljs-string">'requireParams'</span>)
 
       <span class="hljs-keyword">for</span> param <span class="hljs-keyword">in</span> [<span class="hljs-string">'name'</span>, <span class="hljs-string">'send_at'</span>]
         <span class="hljs-keyword">unless</span> param <span class="hljs-keyword">of</span> params
           <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">"Missing param: <span class="hljs-subst">#{param}</span>"</span>)
+
+      params.sent = <span class="hljs-literal">false</span>
 
       context.next(params)
 <span class="hljs-function">
@@ -110,11 +137,23 @@ log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
         <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">'send_at is not valid'</span>)
 
       send_at = <span class="hljs-keyword">new</span> Date(params.send_at)
-      now = <span class="hljs-keyword">new</span> Date()
+      now = <span class="hljs-keyword">new</span> Date()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>unless send_at &gt; now
+  return context.fail(‘send_at is in the past’)</p>
 
-      <span class="hljs-keyword">unless</span> send_at &gt; now
-        <span class="hljs-keyword">return</span> context.fail(<span class="hljs-string">'send_at is in the past'</span>)
-
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
       context.next({
         send_at : send_at
       })
@@ -160,7 +199,7 @@ log     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
       )
 
     Context.run([
-      requireParams,
+      checkParams,
       processSendAt,
       processAddress,
       create
