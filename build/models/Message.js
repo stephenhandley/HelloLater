@@ -38,7 +38,7 @@
           $lte: now
         }
       };
-      return this.findAll({
+      return this.find({
         query: query,
         callback: callback
       });

@@ -19,7 +19,7 @@
     log.info('getIds');
     messages = context.data.messages;
     ids = messages.map(function(message) {
-      return message.id;
+      return message._id;
     });
     return context.next({
       ids: ids

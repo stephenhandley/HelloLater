@@ -122,7 +122,7 @@ Message = <span class="hljs-built_in">require</span>(<span class="hljs-string">'
   log.info(<span class="hljs-string">'getIds'</span>)
   messages = context.data.messages
   ids = messages.map(<span class="hljs-function"><span class="hljs-params">(message)</span>-&gt;</span>
-    message.id
+    message._id
   )
 
   context.next({

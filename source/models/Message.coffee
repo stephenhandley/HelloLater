@@ -25,7 +25,7 @@ class Message extends Mongo.Model
       }
     }
 
-    @findAll(
+    @find(
       query    : query
       callback : callback
     )

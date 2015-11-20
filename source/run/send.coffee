@@ -12,7 +12,7 @@ getIds = (context)->
   log.info('getIds')
   messages = context.data.messages
   ids = messages.map((message)->
-    message.id
+    message._id
   )
 
   context.next({
